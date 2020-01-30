@@ -4,9 +4,15 @@
 %table#movies.table.table-striped.col-md-12
   %thead
     %tr
-      %th Movie Title
+      - if @sorted == "title"
+        %th.hilite= link_to "Movie Title", params.merge(:sorted => "title")
+      - else
+        %th= link_to "Movie Title", params.merge(:sorted => "title")
       %th Rating
-      %th Release Date
+      - if @sorted == "release_date"
+        %th.hilite= link_to "Release Date", params.merge(:sorted => "release_date")
+      - else
+        %th= link_to "Release Date", params.merge(:sorted => "release_date")
       %th More Info
   %tbody
     - @movies.each do |movie|
