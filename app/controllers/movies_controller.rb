@@ -11,16 +11,51 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @sorted = params[:sorted]
+    @all_ratings = Movie.get_ratings()
+
+    redirect = false
+    if params[:ratings] == nil
+      if session[:ratings] == nil
+        @current_ratings = []
+      else
+        redirect = true
+        @current_ratings = session[:ratings]
+      end
+    else
+      @current_ratings = params[:ratings]
+    end
+
+    if params[:sorted] == nil
+      if session[:sorted] != nil
+        redirect = true
+      end
+      @sorted = session[:sorted]
+    else
+      @sorted = params[:sorted]
+    end
+
+    if redirect
+      puts "SHOULD REDIRECT HERE"
+      # redirect_to controller: "movies", sorted: @sorted
+      redirect_to controller: "movies", sorted: @sorted, ratings: @current_ratings
+      return
+    end
+  
     if @sorted == "title"
-      @movies = Movie.order(:title).all
+      @movies = Movie.with_ratings(@current_ratings).sort_by(&:title)
       puts "Sorted by title possibly"
     elsif @sorted == "release_date"
-      @movies = Movie.order(:release_date).all
+      @movies = Movie.with_ratings(@current_ratings).sort_by(&:release_date)
       puts "Sorted by date possibly"
     else
-      @movies = Movie.all
+      @movies = Movie.with_ratings(@current_ratings)
     end
+
+    session[:sorted] = @sorted
+    session[:ratings] = @current_ratings
+
+    puts session[:sorted] == nil
+    puts session[:ratings] == nil
   end
 
   def new
